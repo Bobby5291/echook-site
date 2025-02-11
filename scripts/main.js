@@ -33,15 +33,15 @@ let app = new Vue({
       this.$http.get(`https://dweet.io/get/latest/dweet/for/${this.thingName}`).then(function(response) {
         if (response.status == "200") {
           // console.log(response.data);
-          if (response.data.this === "succeeded" && response.data.with[0].created != this.dweet.updated) {
+          if (response.data.this === "succeeded" && response.data.with[0].created != self.dweet.updated) {
             // If data request succeeded, and time stamp isn't the same as the current data
-            this.dweet.updated = response.data.with[0].created; //Update last updated time
-            this.status = `Getting Dweets from ${this.thingName}, updated: ${this.dweet.updated}`; //Update Status text
-            if (this.polling != null) { // after stop is presse previously requested data may still be coming in
-              this.updateData(response.data.with[0].content); //Call updateData function, passing new data from dweet data
+            self.dweet.updated = response.data.with[0].created; //Update last updated time
+            self.status = `Getting Dweets from ${self.thingName}, updated: ${self.dweet.updated}`; //Update Status text
+            if (self.polling != null) { // after stop is presse previously requested data may still be coming in
+              self.updateData(response.data.with[0].content); //Call updateData function, passing new data from dweet data
             }
           } else if (response.data.this === "failed") { //if response failed, update status with reason
-            this.status = `Request failed with error: ${response.data.because}`
+            self.status = `Request failed with error: ${response.data.because}`
           }
         }
       })
