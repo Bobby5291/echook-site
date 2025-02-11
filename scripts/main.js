@@ -3,7 +3,7 @@ Vue.use(VueResource); //Required for GET requests to dweet.io
 let app = new Vue({
   el: "#vue",
   data: {
-    thingName: "echook", //Dweet Thing name
+    thingName: " ", //Dweet Thing name
     buttonText: "Go!",
     status: "Idle",
     dweet: { // This holds the latest data from dweet and is accessible in HTML with {{dweet.dataName}}
@@ -70,19 +70,45 @@ let app = new Vue({
 
     },
     updateData: function(data) {
-      if (data.Vt != undefined) this.dweet.voltage = data.Vt;
-      if (data.V1 != undefined) this.dweet.voltageLow = data.V1;
-      if (data.V1 != undefined) this.dweet.voltagehigh = data.Vt - data.V1;
-      if (data.A != undefined) this.dweet.current = data.A;
-      if (data.RPM != undefined) this.dweet.rpm = data.RPM;
-      if (data.Spd != undefined) this.dweet.speed = data.Spd;
-      if (data.Thrtl != undefined) this.dweet.throttle = data.Thrtl;
-      if (data.Tmp1 != undefined) this.dweet.t1 = data.Tmp1;
-      if (data.Tmp2 != undefined) this.dweet.t2 = data.Tmp2;
-      if (data.AH != undefined) this.dweet.ampHours = data.AH;
-      if (data.Lap != undefined) this.dweet.lap = data.Lap;
-      if (data.Gear != undefined) this.dweet.gear = data.Gear;
-      if (data.Brk != undefined) this.dweet.brake = data.Brk;
+      if (data.Vt != undefined) {
+        this.dweet.voltage = data.Vt;
+      }
+      if (data.V1 != undefined) {
+        this.dweet.voltageLow = data.V1;
+      }
+      if (data.V1 != undefined) {
+        this.dweet.voltagehigh = data.Vt - data.V1;
+      }
+      if (data.A != undefined) {
+        this.dweet.current = data.A;
+      }
+      if (data.RPM != undefined) {
+        this.dweet.rpm = data.RPM;
+      }
+      if (data.Spd != undefined) {
+        this.dweet.speed = data.Spd;
+      }
+      if (data.Thrtl != undefined) {
+        this.dweet.throttle = data.Thrtl;
+      }
+      if (data.Tmp1 != undefined) {
+        this.dweet.t1 = data.Tmp1;
+      }
+      if (data.Tmp2 != undefined) {
+        this.dweet.t2 = data.Tmp2;
+      }
+      if (data.AH != undefined) {
+        this.dweet.ampHours = data.AH;
+      }
+      if (data.Lap != undefined) {
+        this.dweet.lap = data.Lap;
+      }
+      if (data.Gear != undefined) {
+        this.dweet.gear = data.Gear;
+      }
+      if (data.Brk != undefined) {
+        this.dweet.brake = data.Brk;
+      }
     }
   },
   beforeDestroy() {
