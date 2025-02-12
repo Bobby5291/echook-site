@@ -30,14 +30,14 @@ let app = new Vue({
       // It checks if the data is new, and if it is passes it to the updateData function.
       // It also updates the "satus" text if errors occur.
       var self = this;
-      this.$http.get(`https://dweet.io/get/latest/dweet/for/${this.thingName}`).then(function(response) {
+      this.$http.get(`https://dweet.io/listen/for/dweets/from/${this.thingName}`).then(function(response) {
         if (response.status == "200") {
           // console.log(response.data);
           if (response.data.this === "succeeded" && response.data.with[0].created != self.dweet.updated) {
             // If data request succeeded, and time stamp isn't the same as the current data
             self.dweet.updated = response.data.with[0].created; //Update last updated time
             self.status = `Getting Dweets from ${self.thingName}, updated: ${self.dweet.updated}`; //Update Status text
-            if (self.polling != null) { // after stop is presse previously requested data may still be coming in
+            if (self.polling != null) { // after stop is pressed previously requested data may still be coming in
               self.updateData(response.data.with[0].content); //Call updateData function, passing new data from dweet data
             }
           } else if (response.data.this === "failed") { //if response failed, update status with reason
