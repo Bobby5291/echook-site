@@ -57,7 +57,7 @@ let app = new Vue({
         this.getData() // First request before poll interval, otherwise it waits the poll interval before first request
         this.polling = setInterval(() => {
           this.getData();
-        }, 5000); // Calls getData every 5000ms
+        }, 1000); // Calls getData every 5000ms
       } else {
         //Polling != null, therefore we have pressed the stop button
         console.log("Stop");
