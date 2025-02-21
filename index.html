@@ -32,14 +32,10 @@
       <div class="p-4 bg-gray-800 rounded shadow">Brake: {{ dweet.brake }}</div>
     </div>
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
-      <canvas id="voltageChart"></canvas>
-      <canvas id="currentChart"></canvas>
-      <canvas id="rpmChart"></canvas>
-      <canvas id="speedChart"></canvas>
-      <canvas id="throttleChart"></canvas>
-      <canvas id="tempChart"></canvas>
-      <canvas id="ampHoursChart"></canvas>
-      <canvas id="lapChart"></canvas>
+      <div v-for="(chart, key) in charts" :key="key" class="p-4 bg-gray-800 rounded shadow">
+        <h2 class="text-center text-xl font-bold">{{ key }}</h2>
+        <canvas :id="key + 'Chart'"></canvas>
+      </div>
     </div>
   </div>
 
