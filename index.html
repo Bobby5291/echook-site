@@ -17,19 +17,7 @@
     </div>
     <h3 class="text-center mt-2">Status: {{ status }}</h3>
     <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
-      <div class="p-4 bg-gray-800 rounded shadow">Voltage: {{ dweet.voltage }}V</div>
-      <div class="p-4 bg-gray-800 rounded shadow">Battery 1 Voltage: {{ dweet.voltageLow }}V</div>
-      <div class="p-4 bg-gray-800 rounded shadow">Battery 2 Voltage: {{ dweet.voltageHigh }}V</div>
-      <div class="p-4 bg-gray-800 rounded shadow">Current: {{ dweet.current }}A</div>
-      <div class="p-4 bg-gray-800 rounded shadow">RPM: {{ dweet.rpm }}</div>
-      <div class="p-4 bg-gray-800 rounded shadow">Speed: {{ dweet.speed }}m/s</div>
-      <div class="p-4 bg-gray-800 rounded shadow">Throttle: {{ dweet.throttle }}%</div>
-      <div class="p-4 bg-gray-800 rounded shadow">Motor Temp: {{ dweet.t1 }}°C</div>
-      <div class="p-4 bg-gray-800 rounded shadow">Temp2: {{ dweet.t2 }}°C</div>
-      <div class="p-4 bg-gray-800 rounded shadow">Amp Hours Used: {{ dweet.ampHours }}Ah</div>
-      <div class="p-4 bg-gray-800 rounded shadow">Lap: {{ dweet.lap }}</div>
-      <div class="p-4 bg-gray-800 rounded shadow">Gear: {{ dweet.gear }}</div>
-      <div class="p-4 bg-gray-800 rounded shadow">Brake: {{ dweet.brake }}</div>
+      <div v-for="(value, key) in dweet" :key="key" class="p-4 bg-gray-800 rounded shadow">{{ key }}: {{ value }}</div>
     </div>
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
       <div v-for="(chart, key) in charts" :key="key" class="p-4 bg-gray-800 rounded shadow">
@@ -117,17 +105,22 @@
         }
       },
       mounted() {
-        let chartKeys = Object.keys(this.dweet);
-        chartKeys.forEach(key => {
-          let ctx = document.getElementById(`${key}Chart`).getContext('2d');
-          this.charts[key] = new Chart(ctx, {
-            type: 'line',
-            data: {
-              labels: Array(10).fill(''),
-              datasets: [{ label: key, borderColor: 'blue', data: Array(10).fill(0), fill: false }]
-            },
-            options: { responsive: true, maintainAspectRatio: false }
-          });
+        this.$nextTick(() => {
+          setTimeout(() => {
+            Object.keys(this.dweet).forEach(key => {
+              let ctx = document.getElementById(`${key}Chart`);
+              if (ctx) {
+                this.charts[key] = new Chart(ctx.getContext('2d'), {
+                  type: 'line',
+                  data: {
+                    labels: Array(10).fill(''),
+                    datasets: [{ label: key, borderColor: 'blue', data: Array(10).fill(0), fill: false }]
+                  },
+                  options: { responsive: true, maintainAspectRatio: false }
+                });
+              }
+            });
+          }, 500);
         });
       }
     });
