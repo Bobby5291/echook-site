@@ -106,10 +106,15 @@
           }
         },
         updateCharts() {
+          let now = new Date().toLocaleTimeString();
           for (let key in this.dweet) {
             if (this.charts[key]) {
-              this.charts[key].data.labels.push(new Date().toLocaleTimeString());
+              this.charts[key].data.labels.push(now);
               this.charts[key].data.datasets[0].data.push(this.dweet[key]);
+              if (this.charts[key].data.labels.length > 20) {
+                this.charts[key].data.labels.shift();
+                this.charts[key].data.datasets[0].data.shift();
+              }
               this.charts[key].update();
             }
           }
@@ -122,8 +127,8 @@
           this.charts[key] = new Chart(ctx, {
             type: 'line',
             data: {
-              labels: [],
-              datasets: [{ label: key, borderColor: 'blue', data: [], fill: false }]
+              labels: Array(10).fill(''),
+              datasets: [{ label: key, borderColor: 'blue', data: Array(10).fill(0), fill: false }]
             },
             options: { responsive: true, maintainAspectRatio: false }
           });
