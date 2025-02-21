@@ -110,17 +110,32 @@
             Object.keys(this.dweet).forEach(key => {
               let ctx = document.getElementById(`${key}Chart`);
               if (ctx) {
-                this.charts[key] = new Chart(ctx.getContext('2d'), {
+                let context = ctx.getContext('2d');
+                this.charts[key] = new Chart(context, {
                   type: 'line',
                   data: {
                     labels: Array(10).fill(''),
-                    datasets: [{ label: key, borderColor: 'blue', data: Array(10).fill(0), fill: false }]
+                    datasets: [{ 
+                      label: key, 
+                      borderColor: 'blue', 
+                      backgroundColor: 'rgba(0, 0, 255, 0.1)', 
+                      data: Array(10).fill(0), 
+                      fill: true 
+                    }]
                   },
-                  options: { responsive: true, maintainAspectRatio: false }
+                  options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                      y: {
+                        beginAtZero: true
+                      }
+                    }
+                  }
                 });
               }
             });
-          }, 500);
+          }, 1000);
         });
       }
     });
