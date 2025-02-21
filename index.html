@@ -1,52 +1,135 @@
 <!DOCTYPE html>
-<html lang="en" dir="ltr">
-
+<html lang="en">
 <head>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" charset="UTF-8">
   <title>LGS Greenpower Telemetry</title>
+  <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/vue-resource/1.2.0/vue-resource.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
 </head>
-
-<!-- My css -->
-<link rel="stylesheet" 
-href="css/main.css" 
-type="text/css">
-
-
-<body>
-  <div id="vue">
-    <!-- Any text within {{}} inside this 'vue' div will be replaced with the -->
-    <!-- value of that variable in the Vue data object within main.js -->
-    <h1 style="padding-top:20px">LGS Greenpower Telemetry</h1>
-    <br>
-    Enter your 'thing name' and hit go
-    <div class="">
-      <input type="text" v-model="thingName" name="" value="" placeholder="Enter Dweet Thing Name">
-      <button type="button" v-on:click="startDweet" name="button">{{buttonText}}</button>
-      <h3>Status: {{status}}</h3>
+<body class="bg-gray-900 text-white">
+  <div id="vue" class="container mx-auto p-6">
+    <h1 class="text-3xl font-bold text-center">LGS Greenpower Telemetry</h1>
+    <div class="flex justify-center mt-4">
+      <input type="text" v-model="thingName" placeholder="Enter Dweet Thing Name" class="p-2 text-black rounded-l">
+      <button @click="startDweet" class="p-2 bg-blue-500 hover:bg-blue-700 rounded-r">{{ buttonText }}</button>
     </div>
-    <div id="data-view" class="">
-      <p>Voltage: {{dweet.voltage}}V</p>
-      <p>Voltage Battery 1: {{dweet.voltageLow}}V</p>
-      <p>Voltage Battery 2: {{dweet.voltageHigh}}V</p>
-      <p>Motor Current: {{dweet.current}}A</p>
-      <p>Motor RPM: {{dweet.rpm}}RPM</p>
-      <p>Real Speed: {{dweet.speed}}m/s</p>
-      <p>Throttle Amoount: {{dweet.throttle}}%</p>
-      <p>Motor Temp: {{dweet.t1}}c</p>
-      <p>Temp2: {{dweet.t2}}c</p>
-      <p>Amp Hours Used: {{dweet.ampHours}}Ah</p>
-      <p>Current Lap: {{dweet.lap}}</p>
-      <p>Active Gear: {{dweet.gear}}</p>
-      <p>Brake Amount: {{dweet.brake}}</p>
+    <h3 class="text-center mt-2">Status: {{ status }}</h3>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
+      <div class="p-4 bg-gray-800 rounded shadow">Voltage: {{ dweet.voltage }}V</div>
+      <div class="p-4 bg-gray-800 rounded shadow">Battery 1 Voltage: {{ dweet.voltageLow }}V</div>
+      <div class="p-4 bg-gray-800 rounded shadow">Battery 2 Voltage: {{ dweet.voltageHigh }}V</div>
+      <div class="p-4 bg-gray-800 rounded shadow">Current: {{ dweet.current }}A</div>
+      <div class="p-4 bg-gray-800 rounded shadow">RPM: {{ dweet.rpm }}</div>
+      <div class="p-4 bg-gray-800 rounded shadow">Speed: {{ dweet.speed }}m/s</div>
+      <div class="p-4 bg-gray-800 rounded shadow">Throttle: {{ dweet.throttle }}%</div>
+      <div class="p-4 bg-gray-800 rounded shadow">Motor Temp: {{ dweet.t1 }}°C</div>
+      <div class="p-4 bg-gray-800 rounded shadow">Temp2: {{ dweet.t2 }}°C</div>
+      <div class="p-4 bg-gray-800 rounded shadow">Amp Hours Used: {{ dweet.ampHours }}Ah</div>
+      <div class="p-4 bg-gray-800 rounded shadow">Lap: {{ dweet.lap }}</div>
+      <div class="p-4 bg-gray-800 rounded shadow">Gear: {{ dweet.gear }}</div>
+      <div class="p-4 bg-gray-800 rounded shadow">Brake: {{ dweet.brake }}</div>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
+      <canvas id="voltageChart"></canvas>
+      <canvas id="currentChart"></canvas>
+      <canvas id="rpmChart"></canvas>
+      <canvas id="speedChart"></canvas>
+      <canvas id="throttleChart"></canvas>
+      <canvas id="tempChart"></canvas>
+      <canvas id="ampHoursChart"></canvas>
+      <canvas id="lapChart"></canvas>
     </div>
   </div>
+
+  <script>
+    let app = new Vue({
+      el: "#vue",
+      data: {
+        thingName: "",
+        buttonText: "Go!",
+        status: "Idle",
+        dweet: {
+          voltage: 0,
+          voltageLow: 0,
+          voltageHigh: 0,
+          current: 0,
+          rpm: 0,
+          speed: 0,
+          throttle: 0,
+          t1: 0,
+          t2: 0,
+          ampHours: 0,
+          lap: 0,
+          gear: 0,
+          brake: 0,
+        },
+        polling: null,
+        charts: {}
+      },
+      methods: {
+        getData() {
+          this.$http.get(`https://dweet.io/listen/for/dweets/from/${this.thingName}`).then(response => {
+            if (response.status == 200 && response.data.this === "succeeded") {
+              let data = response.data.with[0].content;
+              this.dweet = {
+                voltage: data.Vt || 0,
+                voltageLow: data.V1 || 0,
+                voltageHigh: (data.Vt - data.V1) || 0,
+                current: data.A || 0,
+                rpm: data.RPM || 0,
+                speed: data.Spd || 0,
+                throttle: data.Thrtl || 0,
+                t1: data.Tmp1 || 0,
+                t2: data.Tmp2 || 0,
+                ampHours: data.AH || 0,
+                lap: data.Lap || 0,
+                gear: data.Gear || 0,
+                brake: data.Brk || 0,
+              };
+              this.updateCharts();
+            }
+          });
+        },
+        startDweet() {
+          if (this.polling === null) {
+            this.status = `Getting Dweets from ${this.thingName}`;
+            this.buttonText = "Stop";
+            this.getData();
+            this.polling = setInterval(this.getData, 5000);
+          } else {
+            clearInterval(this.polling);
+            this.polling = null;
+            this.status = "Idle";
+            this.buttonText = "Go!";
+          }
+        },
+        updateCharts() {
+          for (let key in this.dweet) {
+            if (this.charts[key]) {
+              this.charts[key].data.labels.push(new Date().toLocaleTimeString());
+              this.charts[key].data.datasets[0].data.push(this.dweet[key]);
+              this.charts[key].update();
+            }
+          }
+        }
+      },
+      mounted() {
+        let chartKeys = Object.keys(this.dweet);
+        chartKeys.forEach(key => {
+          let ctx = document.getElementById(`${key}Chart`).getContext('2d');
+          this.charts[key] = new Chart(ctx, {
+            type: 'line',
+            data: {
+              labels: [],
+              datasets: [{ label: key, borderColor: 'blue', data: [], fill: false }]
+            },
+            options: { responsive: true, maintainAspectRatio: false }
+          });
+        });
+      }
+    });
+  </script>
 </body>
-
-<!-- Includes -->
-<!-- Vue -->
-<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/vue-resource/1.2.0/vue-resource.js"></script>
-<!-- My Script -->
-<script type='text/javascript' src="scripts/main.js" charset="utf-8"></script>
-
 </html>
