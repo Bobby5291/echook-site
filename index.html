@@ -20,9 +20,9 @@
       <div v-for="(value, key) in dweet" :key="key" class="p-4 bg-gray-800 rounded shadow">{{ key }}: {{ value }}</div>
     </div>
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
-      <div v-for="(chart, key) in charts" :key="key" class="p-4 bg-gray-800 rounded shadow">
+      <div v-for="(chart, key) in dweet" :key="key" class="p-4 bg-gray-800 rounded shadow">
         <h2 class="text-center text-xl font-bold">{{ key }}</h2>
-        <canvas v-if="charts[key]" :id="key + 'Chart'"></canvas>
+        <canvas :id="key + 'Chart'"></canvas>
       </div>
     </div>
   </div>
@@ -72,7 +72,7 @@
                 gear: data.Gear || 0,
                 brake: data.Brk || 0,
               };
-              this.updateCharts();
+              this.$nextTick(() => this.updateCharts());
             }
           });
         },
@@ -91,7 +91,33 @@
         },
         updateCharts() {
           let now = new Date().toLocaleTimeString();
-          for (let key in this.dweet) {
+          Object.keys(this.dweet).forEach(key => {
+            let ctx = document.getElementById(`${key}Chart`);
+            if (!this.charts[key] && ctx) {
+              let context = ctx.getContext('2d');
+              this.charts[key] = new Chart(context, {
+                type: 'line',
+                data: {
+                  labels: Array(10).fill(''),
+                  datasets: [{
+                    label: key,
+                    borderColor: 'blue',
+                    backgroundColor: 'rgba(0, 0, 255, 0.1)',
+                    data: Array(10).fill(0),
+                    fill: true
+                  }]
+                },
+                options: {
+                  responsive: true,
+                  maintainAspectRatio: false,
+                  scales: {
+                    y: {
+                      beginAtZero: true
+                    }
+                  }
+                }
+              });
+            }
             if (this.charts[key]) {
               this.charts[key].data.labels.push(now);
               this.charts[key].data.datasets[0].data.push(this.dweet[key]);
@@ -101,43 +127,8 @@
               }
               this.charts[key].update();
             }
-          }
+          });
         }
-      },
-      mounted() {
-        this.$nextTick(() => {
-          setTimeout(() => {
-            this.$forceUpdate(); // Ensure Vue updates the DOM
-            Object.keys(this.dweet).forEach(key => {
-              let ctx = document.getElementById(`${key}Chart`);
-              if (ctx) {
-                let context = ctx.getContext('2d');
-                this.charts[key] = new Chart(context, {
-                  type: 'line',
-                  data: {
-                    labels: Array(10).fill(''),
-                    datasets: [{ 
-                      label: key, 
-                      borderColor: 'blue', 
-                      backgroundColor: 'rgba(0, 0, 255, 0.1)', 
-                      data: Array(10).fill(0), 
-                      fill: true 
-                    }]
-                  },
-                  options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                      y: {
-                        beginAtZero: true
-                      }
-                    }
-                  }
-                });
-              }
-            });
-          }, 1000);
-        });
       }
     });
   </script>
