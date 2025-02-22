@@ -5,7 +5,7 @@
   <title>LGS Greenpower Telemetry</title>
   <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/vue-resource/1.2.0/vue-resource.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.2.1/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-900 text-white">
@@ -22,7 +22,7 @@
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
       <div v-for="(chart, key) in charts" :key="key" class="p-4 bg-gray-800 rounded shadow">
         <h2 class="text-center text-xl font-bold">{{ key }}</h2>
-        <canvas :id="key + 'Chart'"></canvas>
+        <canvas v-if="charts[key]" :id="key + 'Chart'"></canvas>
       </div>
     </div>
   </div>
@@ -54,7 +54,6 @@
       },
       methods: {
         getData() {
-          console.log("Fetching data from Dweet.io...");
           this.$http.get(`https://dweet.io/listen/for/dweets/from/${this.thingName}`).then(response => {
             if (response.status == 200 && response.data.this === "succeeded") {
               let data = response.data.with[0].content;
@@ -73,11 +72,8 @@
                 gear: data.Gear || 0,
                 brake: data.Brk || 0,
               };
-              console.log("Received data:", this.dweet);
               this.updateCharts();
             }
-          }).catch(error => {
-            console.error("Error fetching data:", error);
           });
         },
         startDweet() {
@@ -95,44 +91,37 @@
         },
         updateCharts() {
           let now = new Date().toLocaleTimeString();
-          console.log("Updating charts at:", now);
-
           for (let key in this.dweet) {
             if (this.charts[key]) {
-              console.log(`Updating ${key} chart with value:`, this.dweet[key]);
               this.charts[key].data.labels.push(now);
               this.charts[key].data.datasets[0].data.push(this.dweet[key]);
-
               if (this.charts[key].data.labels.length > 20) {
                 this.charts[key].data.labels.shift();
                 this.charts[key].data.datasets[0].data.shift();
               }
               this.charts[key].update();
-            } else {
-              console.warn(`Chart for ${key} does not exist yet.`);
             }
           }
         }
       },
       mounted() {
         this.$nextTick(() => {
-          console.log("Initializing Charts...");
           setTimeout(() => {
+            this.$forceUpdate(); // Ensure Vue updates the DOM
             Object.keys(this.dweet).forEach(key => {
               let ctx = document.getElementById(`${key}Chart`);
               if (ctx) {
-                console.log(`Creating chart for ${key}...`);
                 let context = ctx.getContext('2d');
                 this.charts[key] = new Chart(context, {
                   type: 'line',
                   data: {
                     labels: Array(10).fill(''),
-                    datasets: [{
-                      label: key,
-                      borderColor: 'blue',
-                      backgroundColor: 'rgba(0, 0, 255, 0.1)',
-                      data: Array(10).fill(0),
-                      fill: true
+                    datasets: [{ 
+                      label: key, 
+                      borderColor: 'blue', 
+                      backgroundColor: 'rgba(0, 0, 255, 0.1)', 
+                      data: Array(10).fill(0), 
+                      fill: true 
                     }]
                   },
                   options: {
@@ -145,12 +134,9 @@
                     }
                   }
                 });
-                console.log(`Chart for ${key} initialized successfully.`);
-              } else {
-                console.warn(`Canvas for ${key}Chart not found!`);
               }
             });
-          }, 2000); // Delay to ensure elements are rendered
+          }, 1000);
         });
       }
     });
