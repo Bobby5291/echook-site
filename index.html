@@ -35,10 +35,19 @@
         buttonText: "Go!",
         status: "Idle",
         dweet: {
-          uptime: 0,
-          appUptime: 0,
-          memory: 0,
-          cpuT: 0,
+          voltage: 0,
+          voltageLow: 0,
+          voltageHigh: 0,
+          current: 0,
+          rpm: 0,
+          speed: 0,
+          throttle: 0,
+          t1: 0,
+          t2: 0,
+          ampHours: 0,
+          lap: 0,
+          gear: 0,
+          brake: 0,
         },
         polling: null,
         charts: {}
@@ -49,10 +58,19 @@
             if (response.status == 200 && response.data.this === "succeeded") {
               let data = response.data.with[0].content;
               this.dweet = {
-                uptime: data["00001ea7a90f"].uptime || 0,
-                appUptime: data["00001ea7a90f"].appUptime || 0,
-                memory: data["00001ea7a90f"].memory || 0,
-                cpuT: data["00001ea7a90f"].cpuT || 0,
+                voltage: data.Vt || 0,
+                voltageLow: data.V1 || 0,
+                voltageHigh: (data.Vt - data.V1) || 0,
+                current: data.A || 0,
+                rpm: data.RPM || 0,
+                speed: data.Spd || 0,
+                throttle: data.Thrtl || 0,
+                t1: data.Tmp1 || 0,
+                t2: data.Tmp2 || 0,
+                ampHours: data.AH || 0,
+                lap: data.Lap || 0,
+                gear: data.Gear || 0,
+                brake: data.Brk || 0,
               };
               this.$nextTick(() => this.updateCharts());
             }
