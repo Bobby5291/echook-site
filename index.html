@@ -111,8 +111,21 @@
                   responsive: true,
                   maintainAspectRatio: false,
                   scales: {
+                    x: {
+                      display: true,
+                      title: {
+                        display: true,
+                        text: 'Time'
+                      }
+                    },
                     y: {
-                      beginAtZero: true
+                      beginAtZero: true,
+                      suggestedMin: 0,
+                      suggestedMax: 10,
+                      title: {
+                        display: true,
+                        text: key
+                      }
                     }
                   }
                 }
